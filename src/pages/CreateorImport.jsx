@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { generateMnemonic } from 'bip39';
+import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import { motion } from 'framer-motion';
 import SolanaWallet from '../components/SolanaWallet';
 import EthWallet from '../components/ETHWallet';
 import MnemonicContainer from '../components/MnemonicContainer';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Wallet } from 'ethers';
+import { HDNodeWallet } from 'ethers';
+import { decryptData, encryptData, getLocal, setLocal, showToast } from '../utils/common';
 
 const CreateorImport = () => {
     const [mnemonic, setMnemonic] = useState('');
     const [buttonText, setButtonText] = useState('Create Seed Phrase');
     const [isMnemonicGenerated, setIsMnemonicGenerated] = useState(false);
 
-    const location = useLocation()
+    const location = useLocation();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (location?.state === "create")
@@ -32,6 +36,38 @@ const CreateorImport = () => {
             }, 2000);
         }
     };
+
+    const handleAddWallet = async () => {
+        if (!mnemonic) return showToast("error", "Mnemonic not found")
+        const seed = await mnemonicToSeed(mnemonic);
+        const derivationPath = `m/44'/60'/${0}'/0'`;
+        const hdNode = HDNodeWallet.fromSeed(seed);
+        const child = hdNode.derivePath(derivationPath);
+        const privateKey = child.privateKey;
+        const getWallet = new Wallet(privateKey);
+
+        console.log("jkaf", seed, privateKey);
+
+        const wallet = {
+            address: getWallet.address,
+            privateKey,
+            mnemonic
+        }
+
+        const getExistArr = getLocal("wallets")
+
+        if (!getExistArr) {
+            setLocal("wallets", [wallet]);
+            setLocal("currentWallet", 0)
+        }
+        else {
+            setLocal("wallets", [...getExistArr, wallet]);
+            setLocal("currentWallet", getExistArr?.length)
+        }
+
+        navigate("/walletHome")
+    };
+
 
     return (
         <div className="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen text-white">
@@ -91,13 +127,17 @@ const CreateorImport = () => {
                     >
                         <div className='w-full' >
                             <label for="first_name" class="text-xl lg:text-1xl text-gray-300 max-w-2xl mx-auto mb-10">Enter your mnemonic</label>
-                            <input type="text" id="first_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Seed phrase" />
+                            <input
+                                type="text"
+                                id="first_name"
+                                onChange={(e) => setMnemonic(e.target.value)}
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="Seed phrase" />
                         </div>
 
 
                         <button
                             className={`p-2 rounded-3xl m-8 transition-all duration-300 ease-in-out bg-rose-500 hover:bg-green-600 hover:scale-105`}
-                            // onClick={handleAddWallet}
+                            onClick={handleAddWallet}
                         >
                             Import wallet
                         </button>
