@@ -1,32 +1,22 @@
 import React, { useState } from 'react';
 import { generateMnemonic } from 'bip39';
 import { motion } from 'framer-motion';
-import SolanaWallet from '../components/SolanaWallet';
-import EthWallet from '../components/ETHWallet';
-import MnemonicContainer from '../components/MnemonicContainer';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 
 const Home = () => {
   const [mnemonic, setMnemonic] = useState('');
   const [buttonText, setButtonText] = useState('Create Seed Phrase');
   const [isMnemonicGenerated, setIsMnemonicGenerated] = useState(false);
+  const walletData = useSelector(state => state.wallet)
+  console.log("walletDatawalletData", walletData);
 
   const navigate = useNavigate()
 
-  const handleGenerateMnemonic = async () => {
-    const mn = await generateMnemonic();
-    setMnemonic(mn);
-
-    if (!isMnemonicGenerated) {
-      setButtonText('Phrase Generated!');
-      setIsMnemonicGenerated(true);
-
-      setTimeout(() => {
-        setButtonText('Create New Seed Phrase');
-        setIsMnemonicGenerated(false);
-      }, 2000);
-    }
-  };
+  const onCreateWalletClick = async () => {
+    const mn = generateMnemonic();
+    navigate("/create-or-import", { state: { type: "create", mnemonic: mn } })
+  }
 
   return (
     <div className="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen text-white">
@@ -61,7 +51,7 @@ const Home = () => {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/create-or-import", { state: "create" })}
+            onClick={() => onCreateWalletClick()}
             className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 mb-12"
           >
             {buttonText}

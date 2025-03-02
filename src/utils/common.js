@@ -27,3 +27,13 @@ export const setLocal = (key, value) => localStorage.setItem(key, encryptData(JS
 // get values from the local storage with decryption.
 export const getLocal = (key) => JSON.parse(decryptData(localStorage.getItem(key)) || "{}")?.data
 
+export const addressshowing = (data) => {
+    if (data?.length > 10) {
+        var address = data?.substring(0, 10) + '...' + data?.substring(data.length - 11, data.length - 1)
+    } else {
+        var address = data
+    }
+    return address
+}
+
+export const stopFunction = async (ms) => await new Promise(res => setTimeout(() => res(), ms));

@@ -17,11 +17,9 @@ const CopyButton = ({ text }) => {
 
   return (
     <motion.button
-      className={`flex items-center justify-center space-x-2 p-3 rounded-full text-white transition-all duration-300 ${
-        isCopied
-          ? 'bg-green-500 hover:bg-green-600'
-          : 'bg-indigo-500 hover:bg-indigo-600'
-      }`}
+      className={`flex items-center w-40 justify-center space-x-2 p-3 rounded-full text-white transition-all duration-300
+        font-semibold bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600
+      `}
       onClick={handleCopy}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}

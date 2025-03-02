@@ -12,7 +12,17 @@ export const getBalance = async (rpc, address) => {
         console.log("balance", balance);
         return parseFloat(ethers.formatEther(balance)).toFixed(8)
     } catch (e) {
-        console.log("errorn on getBalance",e,rpc);
+        console.log("errorn on getBalance", e, rpc);
         return 0
+    }
+}
+
+export const createEvmWallet = async (seed) => {
+    try {
+        const mnemonicWallet = ethers.Wallet.fromPhrase(seed);
+
+        return { address: mnemonicWallet.address, privateKey: mnemonicWallet.privateKey }
+    } catch (e) {
+        console.log("createEvmWallet_err", e);
     }
 }

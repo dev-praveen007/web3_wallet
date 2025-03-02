@@ -1,56 +1,32 @@
 import React, { useEffect, useState } from 'react';
-import { generateMnemonic, mnemonicToSeed } from 'bip39';
 import { motion } from 'framer-motion';
-import SolanaWallet from '../components/SolanaWallet';
-import EthWallet from '../components/ETHWallet';
 import MnemonicContainer from '../components/MnemonicContainer';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Wallet } from 'ethers';
-import { HDNodeWallet } from 'ethers';
-import { decryptData, encryptData, getLocal, setLocal, showToast } from '../utils/common';
+import { getLocal, setLocal, showToast } from '../utils/common';
+import { createEvmWallet } from '../utils/web3.utils';
 
 const CreateorImport = () => {
     const [mnemonic, setMnemonic] = useState('');
-    const [buttonText, setButtonText] = useState('Create Seed Phrase');
-    const [isMnemonicGenerated, setIsMnemonicGenerated] = useState(false);
+console.log("mnemonic",mnemonic);
 
     const location = useLocation();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (location?.state === "create")
-            handleGenerateMnemonic();
+        console.log("location?.state",location?.state);
+        
+        if (location?.state?.type === "create") setMnemonic(location?.state?.mnemonic);
     }, [location?.state])
 
-    const handleGenerateMnemonic = async () => {
-        const mn = await generateMnemonic();
-        setMnemonic(mn);
-
-        if (!isMnemonicGenerated) {
-            setButtonText('Phrase Generated!');
-            setIsMnemonicGenerated(true);
-
-            setTimeout(() => {
-                setButtonText('Create New Seed Phrase');
-                setIsMnemonicGenerated(false);
-            }, 2000);
-        }
-    };
 
     const handleAddWallet = async () => {
         if (!mnemonic) return showToast("error", "Mnemonic not found")
-        const seed = await mnemonicToSeed(mnemonic);
-        const derivationPath = `m/44'/60'/${0}'/0'`;
-        const hdNode = HDNodeWallet.fromSeed(seed);
-        const child = hdNode.derivePath(derivationPath);
-        const privateKey = child.privateKey;
-        const getWallet = new Wallet(privateKey);
+        const getWallet = await createEvmWallet(mnemonic);
 
-        console.log("jkaf", seed, privateKey);
 
         const wallet = {
             address: getWallet.address,
-            privateKey,
+            privateKey: getWallet.privateKey,
             mnemonic
         }
 
@@ -64,7 +40,7 @@ const CreateorImport = () => {
             setLocal("wallets", [...getExistArr, wallet]);
             setLocal("currentWallet", getExistArr?.length)
         }
-
+        showToast("success", location.state == "create" ? "Wallet created successfully" : "Wallet imported successfully")
         navigate("/walletHome")
     };
 
@@ -99,7 +75,7 @@ const CreateorImport = () => {
                 </motion.p>
 
                 {/* Mnemonic and Wallets Section */}
-                {location.state == "create" ?
+                {location.state?.type == "create" ?
                     <motion.div
                         initial={{ opacity: 0, y: 50 }}
                         animate={{ opacity: 1, y: 0 }}

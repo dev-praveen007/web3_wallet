@@ -1,20 +1,21 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { getLocal } from '../utils/common';
+import { addressshowing, getLocal, setLocal, stopFunction } from '../utils/common';
 import { networks } from '../utils/networks';
 import { getBalance } from '../utils/web3.utils';
+import Dropdown from '../components/Dropdown';
 
 const WalletHome = () => {
 
     const [cryptoData, setCryptoData] = useState([]);
     const [walletData, setWalletData] = useState([]);
     const [currentWallet, setCurrentWallet] = useState([]);
-    const [setTotalAmt, setTotalAmount] = useState(0)
+    const [setTotalAmt, setTotalAmount] = useState(0);
 
     const getWalletData = getLocal("wallets");
     const getcurrentWalletIndex = getLocal("currentWallet");
 
-    console.log("walletData", walletData, currentWallet);
+    console.log("walletData", walletData, currentWallet,getcurrentWalletIndex);
 
     useEffect(() => {
         fetchMarketPrices();
@@ -41,9 +42,9 @@ const WalletHome = () => {
         }
     };
 
-    const getWallets = async (cryptoDatas) => {
-        let currentWallet = getWalletData[getcurrentWalletIndex]
-        console.log("cryptoDatas", cryptoDatas);
+    const getWallets = async (cryptoDatas,index) => {
+        let currentWallet = getWalletData[index || getcurrentWalletIndex]
+        console.log("cryptoDatas", cryptoDatas, currentWallet);
         let totalUsdAmt = 0;
         if (cryptoDatas?.length != 0) {
             var newWalletData = await Promise.all(cryptoDatas?.map(async (val) => {
@@ -68,9 +69,15 @@ const WalletHome = () => {
                 return walletObj
             }))
         }
-        setWalletData(getWalletData);
+        setWalletData(getWalletData?.map((val) => ({ ...val, label: addressshowing(val?.address) })));
         setCurrentWallet(newWalletData || cryptoData)
         setTotalAmount(totalUsdAmt?.toFixed(8) || 0)
+    }
+
+    const onWalletChange = async (val, index) => {
+        setLocal("currentWallet", index);
+        await stopFunction(1000)
+        getWallets(cryptoData,index)
     }
 
     return (
@@ -80,9 +87,10 @@ const WalletHome = () => {
 
             <div className="bg-gray-900 text-white min-h-screen p-6">
                 {/* Header */}
-                <header className="flex justify-between items-center mb-8">
-                    <div className="text-xl font-bold">CryptoWallet</div>
-                    <div className="text-sm">{getWalletData?.[getcurrentWalletIndex]?.address}</div>
+                <header className="flex justify-center items-center mb-8">
+                    {/* <div className="text-xl font-bold">CryptoWallet</div> */}
+                    <Dropdown data={walletData} selectedData={addressshowing(getWalletData[getcurrentWalletIndex]?.address)} onSelect={onWalletChange} />
+                    {/* <div className="text-sm">{getWalletData?.[getcurrentWalletIndex]?.address}</div> */}
                 </header>
 
                 {/* Balance */}

@@ -3,11 +3,15 @@ import PropTypes from 'prop-types';
 import { motion } from 'framer-motion';
 import MnemonicCard from './MnemonicCard';
 import CopyButton from './CopyButton';
+import MotionButton from './MotionButton';
+import { useNavigate } from 'react-router-dom';
 
 const MnemonicContainer = ({ mnemonic }) => {
   if (!mnemonic) return null;
 
   const words = mnemonic.split(' ');
+
+  const navigate = useNavigate()
 
   return (
     <motion.div
@@ -33,7 +37,7 @@ const MnemonicContainer = ({ mnemonic }) => {
         </p>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8"
         variants={{
           hidden: { opacity: 0 },
@@ -64,9 +68,11 @@ const MnemonicContainer = ({ mnemonic }) => {
         ))}
       </motion.div>
 
-      <div className="flex justify-center mt-6">
+      <div className="flex justify-around mt-6">
         <CopyButton text={mnemonic} />
+        <MotionButton text={"Next"} onClick={() => navigate("/create-wallet")} />
       </div>
+
     </motion.div>
   );
 };
