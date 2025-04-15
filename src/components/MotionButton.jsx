@@ -13,7 +13,7 @@ const MotionButton = ({ text, onClick }) => {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
         onClick={onClick}
-        className=" w-40  text-lg font-semibold bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 "
+        className=" w-40 p-3 text-lg font-semibold bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 "
       >
         {text}
       </motion.button>

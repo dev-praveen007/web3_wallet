@@ -70,7 +70,7 @@ const MnemonicContainer = ({ mnemonic }) => {
 
       <div className="flex justify-around mt-6">
         <CopyButton text={mnemonic} />
-        <MotionButton text={"Next"} onClick={() => navigate("/create-wallet")} />
+        <MotionButton text={"Next"} onClick={() => navigate("/create-wallet", { state: { mnemonic } })} />
       </div>
 
     </motion.div>

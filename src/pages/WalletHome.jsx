@@ -4,6 +4,7 @@ import { addressshowing, getLocal, setLocal, stopFunction } from '../utils/commo
 import { networks } from '../utils/networks';
 import { getBalance } from '../utils/web3.utils';
 import Dropdown from '../components/Dropdown';
+import { useNavigate } from 'react-router-dom';
 
 const WalletHome = () => {
 
@@ -15,7 +16,9 @@ const WalletHome = () => {
     const getWalletData = getLocal("wallets");
     const getcurrentWalletIndex = getLocal("currentWallet");
 
-    console.log("walletData", walletData, currentWallet,getcurrentWalletIndex);
+    const navigate = useNavigate();
+
+    console.log("walletData", walletData, getWalletData, currentWallet, getcurrentWalletIndex);
 
     useEffect(() => {
         fetchMarketPrices();
@@ -42,7 +45,7 @@ const WalletHome = () => {
         }
     };
 
-    const getWallets = async (cryptoDatas,index) => {
+    const getWallets = async (cryptoDatas, index) => {
         let currentWallet = getWalletData[index || getcurrentWalletIndex]
         console.log("cryptoDatas", cryptoDatas, currentWallet);
         let totalUsdAmt = 0;
@@ -77,7 +80,7 @@ const WalletHome = () => {
     const onWalletChange = async (val, index) => {
         setLocal("currentWallet", index);
         await stopFunction(1000)
-        getWallets(cryptoData,index)
+        getWallets(cryptoData, index)
     }
 
     return (
@@ -102,7 +105,7 @@ const WalletHome = () => {
                 {/* Quick Actions */}
                 <div className="flex justify-center gap-4 mb-8">
                     <button className="bg-blue-500 px-6 py-2 rounded-lg">Send</button>
-                    <button className="bg-green-500 px-6 py-2 rounded-lg">Receive</button>
+                    <button className="bg-green-500 px-6 py-2 rounded-lg" onClick={() => navigate("/receive-crypto")}>Receive</button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -37,3 +37,24 @@ export const addressshowing = (data) => {
 }
 
 export const stopFunction = async (ms) => await new Promise(res => setTimeout(() => res(), ms));
+
+export const getUniqueRandomNumbers = (min, max, count) => {
+    let numbers = new Set();
+    while (numbers.size < count) {
+        numbers.add(Math.floor(Math.random() * (max - min + 1)) + min);
+    }
+    return [...numbers];
+}
+
+export const isEmpty = (value) =>
+    value === undefined ||
+    value == "undefined" ||
+    value === null ||
+    value == false ||
+    value == "false" ||
+    (typeof value === "object" && Object.keys(value).length === 0) ||
+    (typeof value === "object" && Array.isArray(value) && value.length === 0) ||
+    (typeof value === "string" && value.trim().length === 0) ||
+    (typeof value === "string" && value === "0") ||
+    (typeof value === "number" && value === 0);
+  
