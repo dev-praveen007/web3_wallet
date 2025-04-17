@@ -17,4 +17,12 @@ export const networks = {
         rpc: 'https://bsc-testnet-rpc.publicnode.com',
         blockExplorer: 'https://testnet.bscscan.com',
     },
+    MATIC: {
+        id: 80002,
+        network: 'MATIC',
+        name: 'Ploygon',
+        nativeCurrency: { name: 'Polygon', symbol: 'MATIC', decimals: 18 },
+        rpc: 'https://rpc-amoy.polygon.technology',
+        blockExplorer: 'https://testnet.bscscan.com',
+    },
 }

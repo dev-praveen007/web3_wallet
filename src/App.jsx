@@ -9,6 +9,7 @@ import toast, { Toaster } from 'react-hot-toast';
 import WalletHome from './pages/WalletHome';
 import CreateWallet from './pages/CreateWallet';
 import ReceiveCrypto from './pages/ReceiveCrypto';
+import SendCrypto from './pages/SendCrypto';
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
         <Route path="/walletHome" element={<WalletHome />} />
         <Route path="/create-wallet" element={<CreateWallet />} />
         <Route path="/receive-crypto" element={<ReceiveCrypto />} />
+        <Route path="/send-crypto" element={<SendCrypto />} />
       </Routes>
       <Toaster
         position="top-center"

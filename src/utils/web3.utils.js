@@ -1,4 +1,4 @@
-import { ethers } from "ethers"
+import { ethers, formatEther, isAddress, parseEther } from "ethers"
 import Web3 from "web3"
 
 const web3Instance = (rpc) => {
@@ -26,3 +26,35 @@ export const createEvmWallet = async (seed) => {
         console.log("createEvmWallet_err", e);
     }
 }
+
+export const checkAddress = (address) => {
+    try {
+        return isAddress(address);
+    } catch (e) {
+        console.log("error checkAddress", e);
+        return false;
+    }
+}
+
+export const sendEthWithPrivateKey = async (recipientAddress, amount, privKey,rpc) => {
+    const provider = new ethers.JsonRpcProvider(rpc)
+
+    const wallet = new ethers.Wallet(privKey, provider);
+
+    const amountInWei = parseEther(String(amount), privKey);
+
+    const tx = {
+        to: recipientAddress,
+        value: amountInWei,
+    };
+
+    try {
+        const sentTx = await wallet.sendTransaction(tx);
+        console.log("Transaction sent:", sentTx.hash);
+        await sentTx.wait();
+        return true;
+    } catch (error) {
+        console.error("Transaction failed:", error);
+        return false;
+    }
+};

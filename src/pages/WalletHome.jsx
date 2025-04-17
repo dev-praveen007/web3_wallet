@@ -5,6 +5,8 @@ import { networks } from '../utils/networks';
 import { getBalance } from '../utils/web3.utils';
 import Dropdown from '../components/Dropdown';
 import { useNavigate } from 'react-router-dom';
+import { setAllwallets, setcurrentWallet, setCurrentWalletIndex } from '../redux/slice';
+import { useDispatch } from 'react-redux';
 
 const WalletHome = () => {
 
@@ -17,6 +19,7 @@ const WalletHome = () => {
     const getcurrentWalletIndex = getLocal("currentWallet");
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     console.log("walletData", walletData, getWalletData, currentWallet, getcurrentWalletIndex);
 
@@ -31,7 +34,7 @@ const WalletHome = () => {
                 {
                     params: {
                         vs_currency: "usd",
-                        ids: "bitcoin,ethereum,binancecoin",
+                        ids: "ethereum,binancecoin,matic-network",
                     },
                 }
             );
@@ -75,6 +78,10 @@ const WalletHome = () => {
         setWalletData(getWalletData?.map((val) => ({ ...val, label: addressshowing(val?.address) })));
         setCurrentWallet(newWalletData || cryptoData)
         setTotalAmount(totalUsdAmt?.toFixed(8) || 0)
+        
+        dispatch(setcurrentWallet(newWalletData))
+        dispatch(setAllwallets(getWalletData))
+        dispatch(setCurrentWalletIndex(getcurrentWalletIndex))
     }
 
     const onWalletChange = async (val, index) => {
@@ -104,7 +111,7 @@ const WalletHome = () => {
 
                 {/* Quick Actions */}
                 <div className="flex justify-center gap-4 mb-8">
-                    <button className="bg-blue-500 px-6 py-2 rounded-lg">Send</button>
+                    <button className="bg-blue-500 px-6 py-2 rounded-lg" onClick={() => navigate("/send-crypto")} >Send</button>
                     <button className="bg-green-500 px-6 py-2 rounded-lg" onClick={() => navigate("/receive-crypto")}>Receive</button>
                 </div>
 
