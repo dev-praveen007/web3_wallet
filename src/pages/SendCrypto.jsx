@@ -6,8 +6,8 @@ import { networks } from "../utils/networks";
 
 const SendCrypto = () => {
 
-    const { currentWallet, allWallets, currentWalletIndex } = useSelector(state => state.wallet)
-    console.log("getWalletData", currentWallet, allWallets[currentWalletIndex]);
+    const { currentWallet } = useSelector(state => state.wallet)
+    console.log("getWalletData", currentWallet);
 
     const init = {
         recipient: "",
@@ -40,10 +40,10 @@ const SendCrypto = () => {
         if (!isEmpty(valid)) return setErr(valid);
 
         const id = showToast("loading", "Sending transaction.")
-        const getPrivKey = allWallets[currentWalletIndex];
+        const getPrivKey = currentWallet;
         const getNetWork = networks[formData?.token]
         setLoading(true)
-        const send = await sendEthWithPrivateKey(formData?.recipient, formData?.amount, getPrivKey?.privateKey, getNetWork.rpc);
+        const send = await sendEthWithPrivateKey(formData?.recipient, formData?.amount, getPrivKey?.privateKey, getNetWork.rpc,formData?.token);
         setLoading(false)
         if (!send) return showToast("error", "Transaction failed", { id });
         showToast("success", "Amount transfered successfully", { id });
@@ -52,7 +52,7 @@ const SendCrypto = () => {
     };
 
     const getBalanceForSend = async () => {
-        const wallet = allWallets[currentWalletIndex];
+        const wallet = currentWallet;
         const getNetWork = networks[formData?.token]
         const getBal = await getBalance(getNetWork.rpc, wallet?.address)
         setBalance(getBal)

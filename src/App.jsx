@@ -10,6 +10,7 @@ import WalletHome from './pages/WalletHome';
 import CreateWallet from './pages/CreateWallet';
 import ReceiveCrypto from './pages/ReceiveCrypto';
 import SendCrypto from './pages/SendCrypto';
+import AddWallet from './pages/Addwallet';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="/create-wallet" element={<CreateWallet />} />
         <Route path="/receive-crypto" element={<ReceiveCrypto />} />
         <Route path="/send-crypto" element={<SendCrypto />} />
+        <Route path="/add-wallet" element={<AddWallet />} />
       </Routes>
       <Toaster
         position="top-center"

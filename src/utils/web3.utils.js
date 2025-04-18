@@ -1,5 +1,6 @@
-import { ethers, formatEther, isAddress, parseEther } from "ethers"
+import { ethers, formatEther, isAddress, Mnemonic, parseEther, Wallet } from "ethers"
 import Web3 from "web3"
+import { saveTransaction } from "./common"
 
 const web3Instance = (rpc) => {
     return new Web3(rpc)
@@ -36,7 +37,18 @@ export const checkAddress = (address) => {
     }
 }
 
-export const sendEthWithPrivateKey = async (recipientAddress, amount, privKey,rpc) => {
+export const checkMnemonic = (mn) => Mnemonic.isValidMnemonic(mn);
+
+export const createWalletPrivKey = (key) => {
+    try {
+      const wallet = new Wallet(key);
+      return wallet.address; 
+    } catch (err) {
+      return false;
+    }
+};
+
+export const sendEthWithPrivateKey = async (recipientAddress, amount, privKey, rpc, coin) => {
     const provider = new ethers.JsonRpcProvider(rpc)
 
     const wallet = new ethers.Wallet(privKey, provider);
@@ -52,9 +64,11 @@ export const sendEthWithPrivateKey = async (recipientAddress, amount, privKey,rp
         const sentTx = await wallet.sendTransaction(tx);
         console.log("Transaction sent:", sentTx.hash);
         await sentTx.wait();
+        saveTransaction(wallet.address, recipientAddress, amount, sentTx.hash, "Confirmed", coin)
         return true;
     } catch (error) {
         console.error("Transaction failed:", error);
+        saveTransaction(wallet.address, recipientAddress, amount, "", "Failed", coin)
         return false;
     }
 };

@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { generateMnemonic } from 'bip39';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import { PageLoader } from '../components/PageLoader';
+import { isEmpty } from '../utils/common';
 
 const Home = () => {
-  const [mnemonic, setMnemonic] = useState('');
-  const [buttonText, setButtonText] = useState('Create Seed Phrase');
-  const [isMnemonicGenerated, setIsMnemonicGenerated] = useState(false);
-  const walletData = useSelector(state => state.wallet)
-  console.log("walletDatawalletData", walletData);
+  const { currentWallet } = useSelector(state => state.wallet)
+
+  const [loader, setLoader] = useState(true);
 
   const navigate = useNavigate()
 
@@ -17,6 +17,18 @@ const Home = () => {
     const mn = generateMnemonic();
     navigate("/create-or-import", { state: { type: "create", mnemonic: mn } })
   }
+
+  useMemo(() => {
+    console.log("currentWallet", currentWallet);
+
+    if (!isEmpty(currentWallet)) setTimeout(() => navigate("/walletHome"), 2000);
+  }, [currentWallet])
+
+  useEffect(() => {
+    setTimeout(() => setLoader(false), 2000)
+  }, [])
+
+  if (loader) return <PageLoader />;
 
   return (
     <div className="bg-gradient-to-b from-gray-900 to-gray-800 min-h-screen text-white">
@@ -54,7 +66,7 @@ const Home = () => {
             onClick={() => onCreateWalletClick()}
             className="px-8 py-4 text-lg font-semibold bg-gradient-to-r from-purple-500 to-pink-500 rounded-full shadow-lg hover:from-purple-600 hover:to-pink-600 transition-all duration-300 mb-12"
           >
-            {buttonText}
+            Create Seed Phrase
           </motion.button>
 
           <motion.button

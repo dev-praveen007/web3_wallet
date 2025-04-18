@@ -57,4 +57,43 @@ export const isEmpty = (value) =>
     (typeof value === "string" && value.trim().length === 0) ||
     (typeof value === "string" && value === "0") ||
     (typeof value === "number" && value === 0);
-  
+
+
+export const saveTransaction = async (fromAddress, toAddress, amount, hash, status, coin) => {
+    try {
+        const getWalletHistory = getLocal(`${fromAddress}-transaction`);
+        const saveObj = { fromAddress, toAddress, amount, hash, type: "Send", date: Date.now(), status, coin }
+        if (getWalletHistory && getWalletHistory?.length != 0) {
+            setLocal(`${fromAddress}-transaction`, [...getWalletHistory, saveObj])
+        } else {
+            setLocal(`${fromAddress}-transaction`, [saveObj])
+        }
+    } catch (e) {
+        console.error("saveee", e);
+    }
+}
+
+export const getTransactionsByAddress = (address) => {
+    try {
+        return getLocal(`${address}-transaction`)
+    } catch (e) {
+        console.log("error on getTransactionsByAddress", e);
+        return []
+    }
+}
+
+export const copyData = (text) => {
+    try {
+        navigator.clipboard.writeText(text)
+            .then(() => {
+                showToast("success", "Copied successfully")
+            })
+            .catch(err => {
+                showToast("error", "Failed to copy");
+                console.error('Failed to copy text: ', err)
+            });
+
+    } catch (e) {
+        console.log("erro ", e);
+    }
+}

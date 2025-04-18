@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import MnemonicContainer from '../components/MnemonicContainer';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getLocal, setLocal, showToast } from '../utils/common';
-import { createEvmWallet } from '../utils/web3.utils';
+import { checkMnemonic, createEvmWallet } from '../utils/web3.utils';
 
 const CreateorImport = () => {
     const [mnemonic, setMnemonic] = useState('');
@@ -20,7 +20,8 @@ console.log("mnemonic",mnemonic);
 
 
     const handleAddWallet = async () => {
-        if (!mnemonic) return showToast("error", "Mnemonic not found")
+        if (!mnemonic) return showToast("error", "Mnemonic not found");
+        if (!checkMnemonic(mnemonic)) return showToast("error", "Enter valid mnemonic");
         const getWallet = await createEvmWallet(mnemonic);
 
 

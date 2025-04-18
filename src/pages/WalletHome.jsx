@@ -1,12 +1,14 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { addressshowing, getLocal, setLocal, stopFunction } from '../utils/common';
+import { addressshowing, copyData, getLocal, getTransactionsByAddress, isEmpty, setLocal, stopFunction } from '../utils/common';
 import { networks } from '../utils/networks';
 import { getBalance } from '../utils/web3.utils';
 import Dropdown from '../components/Dropdown';
 import { useNavigate } from 'react-router-dom';
 import { setAllwallets, setcurrentWallet, setCurrentWalletIndex } from '../redux/slice';
 import { useDispatch } from 'react-redux';
+import { Copy } from 'lucide-react';
+import { CirclePlus } from 'lucide-react';
 
 const WalletHome = () => {
 
@@ -14,6 +16,7 @@ const WalletHome = () => {
     const [walletData, setWalletData] = useState([]);
     const [currentWallet, setCurrentWallet] = useState([]);
     const [setTotalAmt, setTotalAmount] = useState(0);
+    const [transaction, setTransaction] = useState([]);
 
     const getWalletData = getLocal("wallets");
     const getcurrentWalletIndex = getLocal("currentWallet");
@@ -21,7 +24,7 @@ const WalletHome = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    console.log("walletData", walletData, getWalletData, currentWallet, getcurrentWalletIndex);
+    console.log("walletData", walletData, getWalletData, currentWallet, getcurrentWalletIndex, transaction);
 
     useEffect(() => {
         fetchMarketPrices();
@@ -78,10 +81,8 @@ const WalletHome = () => {
         setWalletData(getWalletData?.map((val) => ({ ...val, label: addressshowing(val?.address) })));
         setCurrentWallet(newWalletData || cryptoData)
         setTotalAmount(totalUsdAmt?.toFixed(8) || 0)
-        
-        dispatch(setcurrentWallet(newWalletData))
-        dispatch(setAllwallets(getWalletData))
-        dispatch(setCurrentWalletIndex(getcurrentWalletIndex))
+        setTransaction(getTransactionsByAddress(currentWallet?.address) || [])
+        dispatch(setcurrentWallet(currentWallet))
     }
 
     const onWalletChange = async (val, index) => {
@@ -97,9 +98,9 @@ const WalletHome = () => {
 
             <div className="bg-gray-900 text-white min-h-screen p-6">
                 {/* Header */}
-                <header className="flex justify-center items-center mb-8">
+                <header className="flex justify-center items-center mb-8 gap-2">
                     {/* <div className="text-xl font-bold">CryptoWallet</div> */}
-                    <Dropdown data={walletData} selectedData={addressshowing(getWalletData[getcurrentWalletIndex]?.address)} onSelect={onWalletChange} />
+                    <Dropdown data={walletData} selectedData={addressshowing(getWalletData[getcurrentWalletIndex]?.address)} onSelect={onWalletChange} /> <CirclePlus className='cursor-pointer' onClick={()=>navigate("/add-wallet")} />
                     {/* <div className="text-sm">{getWalletData?.[getcurrentWalletIndex]?.address}</div> */}
                 </header>
 
@@ -144,35 +145,56 @@ const WalletHome = () => {
 
 
                 {/* Transaction History */}
-                <div className="bg-gray-800 p-4 rounded-lg mt-4">
-                    <h2 className="text-lg font-bold mb-4">Recent Transactions</h2>
-                    <table className="w-full">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Type</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                                <th>Transaction Hash</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>2023-10-01</td>
-                                <td>Send</td>
-                                <td>0.1 ETH</td>
-                                <td className="text-green-500">Confirmed</td>
-                                <td className="text-blue-500">0x123...456</td>
-                            </tr>
-                            {/* Add more rows here */}
-                        </tbody>
-                    </table>
-                </div>
+                {transaction && transaction?.length != 0 ?
+                    <div className="mt-8 w-full px-4 sm:px-6 lg:px-8">
+                        <h2 className="text-xl font-semibold text-white mb-4">Recent Transactions</h2>
+                        <div className="overflow-x-auto bg-gray-800 rounded-2xl shadow-md">
+                            <table className="min-w-full divide-y divide-gray-700">
+                                <thead className="bg-gray-900 text-gray-300 text-sm uppercase tracking-wider">
+                                    <tr>
+                                        <th className="px-6 py-3 text-left">Date</th>
+                                        <th className="px-6 py-3 text-left">Type</th>
+                                        <th className="px-6 py-3 text-left">Amount</th>
+                                        <th className="px-6 py-3 text-left">To address</th>
+                                        <th className="px-6 py-3 text-left">Status</th>
+                                        <th className="px-6 py-3 text-left">Transaction Hash</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-700 text-white text-sm">
+                                    {transaction && transaction?.length != 0 &&
+                                        transaction?.map((item) => (
+                                            <tr>
+                                                <td className="px-6 py-4 whitespace-nowrap">{new Date(item?.date).toLocaleString()}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item?.type}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">{item?.amount} {item?.coin || "ETH"}</td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <p className="text-blue-400 flex-row flex gap-2"  >{addressshowing(item?.toAddress)} <Copy size={18} onClick={() => copyData(item?.toAddress)} /></p>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`inline-block px-2 py-1 text-${item?.status === "Confirmed" ? "green" : "red"}-400 bg-${item?.status === "Confirmed" ? "green" : "red"}-900 rounded-full text-xs font-semibold`}>
+                                                        {item?.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    {!isEmpty(item?.hash) && <p className="text-blue-400  flex-row flex gap-2" >{addressshowing(item?.hash)} <Copy size={18} onClick={() => copyData(item?.hash)} /></p>}
+                                                </td>
+                                            </tr>
+                                        ))
+                                    }
+                                    {/* Add more rows here as needed */}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    :
+                    <p>No data found</p>
+                }
+
 
                 {/* Footer */}
-                <footer className="mt-8 text-center text-gray-400">
+                {/* <footer className="mt-8 text-center text-gray-400">
                     <p>Support | Settings | About</p>
-                </footer>
+                </footer> */}
             </div>
         </div>
     );
